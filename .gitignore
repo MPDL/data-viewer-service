@@ -1,3 +1,6 @@
 .idea/
 data-viewer-service.iml
 /target/
+.settings/
+.classpath
+.project

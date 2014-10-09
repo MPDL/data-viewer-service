@@ -1,16 +1,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-  <groupId>api.mpdl.mpg.de</groupId>
-  <artifactId>data-viewer-service</artifactId>
-  <version>1.0-SNAPSHOT</version>
-  <packaging>war</packaging>
+	<groupId>api.mpdl.mpg.de</groupId>
+	<artifactId>data-viewer-service</artifactId>
+	<version>1.0-SNAPSHOT</version>
+	<packaging>war</packaging>
 
-  <name>data-viewer-service</name>
-  <url>http://maven.apache.org</url>
+	<name>data-viewer-service</name>
+	<url>http://maven.apache.org</url>
 
-  <scm>
+	<scm>
 		<url>https://github.com/MPDL/data-viewer-service</url>
 		<connection>scm:git:git://github.com/MPDL/data-viewer-service.git</connection>
 		<developerConnection>scm:git:git@github.com:MPDL/data-viewer-service.git</developerConnection>
@@ -67,10 +67,10 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
 					<failIfNoTests>false</failIfNoTests>
-                    <additionalClasspathElements>
-                        <additionalClasspathElement>src/main/webapp/WEB-INF</additionalClasspathElement>
-                        <additionalClasspathElement>src/main/resources</additionalClasspathElement>
-                    </additionalClasspathElements>
+					<additionalClasspathElements>
+						<additionalClasspathElement>src/main/webapp/WEB-INF</additionalClasspathElement>
+						<additionalClasspathElement>src/main/resources</additionalClasspathElement>
+					</additionalClasspathElements>
 				</configuration>
 			</plugin>
 		</plugins>
@@ -132,39 +132,36 @@
 			<artifactId>guava</artifactId>
 			<version>17.0</version>
 		</dependency>
-        <dependency>
-            <groupId>javax.json</groupId>
-            <artifactId>javax.json-api</artifactId>
-            <version>1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-all</artifactId>
-            <version>1.3</version>
-            <scope>test</scope>
-        </dependency>
-       <!--<dependency>
-            <groupId>org.glassfish.jersey.test-framework.providers</groupId>
-            <artifactId>jersey-test-framework-provider-inmemory</artifactId>
-            <version>2.11</version>
-            <scope>test</scope>
-        </dependency>-->
-        <dependency>
-            <groupId>org.glassfish.jersey.test-framework.providers</groupId>
-            <artifactId>jersey-test-framework-provider-grizzly2</artifactId>
-            <version>2.11</version>
-            <scope>test</scope>
-        </dependency>
+		<dependency>
+			<groupId>javax.json</groupId>
+			<artifactId>javax.json-api</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hamcrest</groupId>
+			<artifactId>hamcrest-all</artifactId>
+			<version>1.3</version>
+			<scope>test</scope>
+		</dependency>
+		<!--<dependency> <groupId>org.glassfish.jersey.test-framework.providers</groupId> 
+			<artifactId>jersey-test-framework-provider-inmemory</artifactId> <version>2.11</version> 
+			<scope>test</scope> </dependency> -->
+		<dependency>
+			<groupId>org.glassfish.jersey.test-framework.providers</groupId>
+			<artifactId>jersey-test-framework-provider-grizzly2</artifactId>
+			<version>2.11</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>de.mpg.mpdl.service.connector</groupId>
+			<artifactId>java-connector</artifactId>
+			<version>0.1.1</version>
+		</dependency>
 
-
-<!--         <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-server</artifactId>
-            <version>9.0.5.v20130815</version>
-            <scope>test</scope>
-        </dependency> -->
+		<!-- <dependency> <groupId>org.eclipse.jetty</groupId> <artifactId>jetty-server</artifactId> 
+			<version>9.0.5.v20130815</version> <scope>test</scope> </dependency> -->
 		<!-- JSON -->
-        <dependency>
+		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>jackson-mapper-asl</artifactId>
 			<version>1.9.13</version>
