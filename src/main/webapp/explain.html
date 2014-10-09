@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Strict//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Data Viewer service demo page</title>
+</head>
+<body>
+<h1>Upload a File</h1>
+
+<form action="/data-viewer/api/view" method="post" enctype="multipart/form-data" onsubmit="return checkFiles(this)&&checkMime(this);">
+
+    <p>
+        Select a file : <input type="file" name="file1" size="50" />
+    </p>
+     <input type="hidden" name="mimetype" value="swc"/>
+     <input type="submit" value="Get results from the viewer service " />
+     <input type="reset" value="Reset">
+</form>
+
+
+<h1>or put .swc here:</h1>
+
+<h1>or put url to .swc here:</h1>
+
+<form action="/data-viewer/api/view" method="get" onsubmit="return checkUrl(this)&&checkMime(this);">
+
+    <p>
+        <input name="url" id="url" type="text" size="240" />
+    </p>
+	<p>
+	    <input name="mimetype" id="mimetype" type="text" size= "40" value="swc" >
+	</p>
+
+    <input type="submit" value="Get results from the viewer service" />
+    <input type="reset" value="Reset">
+</form>
+
+<p>
+    See <a href="https://github.com/MPDL/data-viewer-service"/> for usage details.
+</p>
+
+<script type="text/javascript">
+
+    function checkFiles(form) {
+        if (form.elements.file1.value) {
+            return true;
+        } else {
+            alert("Please choose a  file!");
+            return false;
+        }
+    }
+
+    function checkUrl(form) {
+        var url = form.elements.url;
+        if (url.value && url.value.trim() != '' ) {
+            return true;
+        } else {
+            alert("Please input URL to .swc!");
+            return false;
+        }
+    }
+    
+    function checkMime(form) {
+        var mime = form.elements.mimetype;
+        if (mime.value && mime.value.trim() != '' ) {
+            return true;
+        } else {
+            alert("Please provide a mime type of the uploaded file ");
+            return false;
+        }
+    }
+</script>
+
+</body>
+</html>
