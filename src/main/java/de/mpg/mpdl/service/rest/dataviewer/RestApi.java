@@ -6,8 +6,6 @@ import java.net.URISyntaxException;
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -16,10 +14,11 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.fileupload.FileUploadException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
 
 import de.mpg.mpdl.service.rest.dataviewer.ServiceConfiguration.Pathes;
 import de.mpg.mpdl.service.rest.dataviewer.process.RestProcessUtils;
@@ -28,17 +27,7 @@ import de.mpg.mpdl.service.rest.dataviewer.process.RestProcessUtils;
 @Path("/")
 public class RestApi {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(RestApi.class);
-
-
-	/**
-	 * The static explain is resolved by UrlRewriteRule
-	 * @throws URISyntaxException 
-	 * 
-	 * @GET @Path(Pathes.PATH_EXPLAIN)
-	 * @Produces(MediaType.TEXT_HTML) public Response getExplain() { return
-	 *                                RestProcessUtils.getExplain(); }
-	 */
+	//private static final Logger LOGGER = LoggerFactory.getLogger(RestApi.class);
 
 	@POST
 	@Path(Pathes.PATH_VIEW)
@@ -46,7 +35,6 @@ public class RestApi {
 	@Produces(MediaType.TEXT_HTML)
 	public Response getViewFromFiles(@Context HttpServletRequest request
 	) throws IOException, FileUploadException, URISyntaxException {
-		System.out.println("HERE I AM PATH VIEW POST");
         return RestProcessUtils.generateViewFromFiles(request);
 	}
 
@@ -63,12 +51,21 @@ public class RestApi {
 	
 	@GET
 	@Path(Pathes.PATH_EXPLAIN)
-	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-	@Produces(MediaType.APPLICATION_JSON_TYPE)
-	public Response getExplainAll()
-			throws IOException {
-        return ServiceConfiguration.getExplainAllJSON();
+	@Produces(MediaType.APPLICATION_JSON)
+	
+	public Response getExplainServices() throws JsonGenerationException, JsonMappingException, IOException
+			 {
+        return  RestProcessUtils.buildJSONResponse(RestProcessUtils.getExplainAllJSON(), Status.OK);
 
 	}
 
+	@GET
+	@Path(Pathes.PATH_EXPLAIN_FORMATS)
+	@Produces(MediaType.APPLICATION_JSON)
+	
+	public Response getExplainFormats() throws JsonGenerationException, JsonMappingException, IOException
+			 {
+        return  RestProcessUtils.buildJSONResponse(RestProcessUtils.getExplainFormatsJSON(), Status.OK);
+
+	}
   }

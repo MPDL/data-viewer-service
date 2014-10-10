@@ -12,15 +12,14 @@
     <p>
         Select a file : <input type="file" name="file1" size="50" />
     </p>
-     <input type="hidden" name="mimetype" value="swc"/>
+     <input type="text" name="mimetype" size="10"/>
      <input type="submit" value="Get results from the viewer service " />
      <input type="reset" value="Reset">
 </form>
 
 
-<h1>or put .swc here:</h1>
 
-<h1>or put url to .swc here:</h1>
+<h1>or put url to the file you want to visualize here:</h1>
 
 <form action="/data-viewer/api/view" method="get" onsubmit="return checkUrl(this)&&checkMime(this);">
 
@@ -28,11 +27,26 @@
         <input name="url" id="url" type="text" size="240" />
     </p>
 	<p>
-	    <input name="mimetype" id="mimetype" type="text" size= "40" value="swc" >
+	    <input name="mimetype" id="mimetype" type="text" size= "40" >
 	</p>
 
     <input type="submit" value="Get results from the viewer service" />
     <input type="reset" value="Reset">
+</form>
+
+<h1>
+    View list of supported services and their formats
+</h1>
+<form action="/data-viewer/api/explain/services" method="get">
+     <input type="submit" value="View list of supported viewer services (JSON)" />
+</form>
+
+<h1>
+    View list of all supported formats 
+</h1>
+
+<form action="/data-viewer/api/explain/formats" method="get">
+     <input type="submit" value="View list of supported viewing formats (JSON)" />
 </form>
 
 <p>
@@ -55,7 +69,7 @@
         if (url.value && url.value.trim() != '' ) {
             return true;
         } else {
-            alert("Please input URL to .swc!");
+            alert("Please input URL to the file you wish to visualize!");
             return false;
         }
     }

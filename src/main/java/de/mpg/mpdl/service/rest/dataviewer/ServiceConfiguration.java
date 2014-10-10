@@ -14,7 +14,6 @@ import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import de.mpg.mpdl.service.rest.dataviewer.process.RestProcessUtils;
 import de.mpg.mpdl.service.vo.dataviewer.ViewerServiceInfo;
 
 public class ServiceConfiguration {
@@ -22,7 +21,7 @@ public class ServiceConfiguration {
 	public class Pathes {
 		public static final String PATH_EXPLAIN = "/explain/services";
 		public static final String PATH_EXPLAIN_FORMATS = "/explain/formats";
-		public static final String PATH_VIEW = "/api/view";
+		public static final String PATH_VIEW = "/view";
 	}
 
 	public static final String SERVICE_NAME = "data-viewer";
@@ -33,7 +32,7 @@ public class ServiceConfiguration {
 	public static final String SERVICE_PROPERTY_DESCRIPTION = ".description";
 	public static final String SERVICE_PROPERTY_HOME_URL = ".home";
 	
-	private static  List<ViewerServiceInfo> viewerServicesCollection;
+	private static List<ViewerServiceInfo> viewerServicesCollection;
 	
 	
 	
@@ -45,51 +44,41 @@ public class ServiceConfiguration {
 
 	public void setViewerServicesCollection(
 			List<ViewerServiceInfo> viewerServicesCollection) {
-		this.viewerServicesCollection = viewerServicesCollection;
+		ServiceConfiguration.viewerServicesCollection = viewerServicesCollection;
 	}
-
+	
 	private Properties properties = new Properties();
 
 	public ServiceConfiguration() {
 		load();
 		
+		//Service collection will actually read the properties file and fill-in the list of viewer services
 		
 		List <String> propertiesKeysList = Arrays.asList( properties.keySet().toArray(new String[0]));
 		List<String> viewerIds = new ArrayList<String>();
 		List <ViewerServiceInfo> viewers = new ArrayList<ViewerServiceInfo>();
 		
 		Collections.sort(propertiesKeysList);
-		String viewerId ="";
 
 		for (String iter:propertiesKeysList) {
 			//Finding out the ID of the service and the name of the Property
 			String propertyServiceId = iter.substring(0, iter.indexOf("."));
 			if (! viewerIds.contains(propertyServiceId)){
 				viewerIds.add(propertyServiceId);
-				System.out.println("Adding property Service "+propertyServiceId);
 			}
 		}
 		
 		for (String viewer:viewerIds ) {
-			/*
-			 * 
-			 * 	fits.url.view=http://fits
-				fits.formats=fits,someother
-				fits.name=fits Viewer Service
-				fits.description=Whatever fits
-				fits.home=http://fits
-			 * 
-			 *  (String viewServiceId, String viewUrl, String formats, String name, String description, String homeUrl ) {
-			 * 
-			 */
 			 ViewerServiceInfo vService = new ViewerServiceInfo(
 					viewer,
-					properties.getProperty(viewer+SERVICE_PROPERTY_VIEW_URL),
-					properties.getProperty(viewer+SERVICE_PROPERTY_FORMATS),
-					properties.getProperty(viewer+SERVICE_PROPERTY_NAME),
-					properties.getProperty(viewer+SERVICE_PROPERTY_DESCRIPTION),
-					properties.getProperty(viewer+SERVICE_PROPERTY_HOME_URL));
+					properties.getProperty(viewer+SERVICE_PROPERTY_VIEW_URL, ""),
+					properties.getProperty(viewer+SERVICE_PROPERTY_FORMATS, ""),
+					properties.getProperty(viewer+SERVICE_PROPERTY_NAME, ""),
+					properties.getProperty(viewer+SERVICE_PROPERTY_DESCRIPTION, ""),
+					properties.getProperty(viewer+SERVICE_PROPERTY_HOME_URL, ""));
 			 
+			 //Clean up duplicate formats, not to cause issues
+			 vService.setSupportedFormats(cleanUpDuplicateFormats(viewers, vService.getSupportedFormats()));
 			 viewers.add(vService);
 			
 		}
@@ -114,12 +103,6 @@ public class ServiceConfiguration {
 		return getServiceUrl() + "/api";
 	}
 
-	public String getScreenshotServiceUrl() {
-		if (properties.containsKey("screenshot.service.url"))
-			return (String) properties.get("screenshot.service.url");
-		return "http://localhost:8080/screenshot";
-	}
-
 	/**
 	 * Load the properties
 	 */
@@ -136,11 +119,11 @@ public class ServiceConfiguration {
                 //if no app server is defined, take props from WEB-INF
                 //(this is the test case)
                 //properties.load(RestProcessUtils.getResourceAsInputStream(PROPERTIES_FILENAME));
+            	//
             	loc = "C:/Users/natasab/hub-dev/tomcat-7.0.54/conf";
                 //return;
             }
 
-            System.out.println("Loading property file from "+loc+" = "+PROPERTIES_FILENAME);
             properties.load(new FileInputStream(new File(
                     FilenameUtils.concat(loc, PROPERTIES_FILENAME))));
 
@@ -150,34 +133,60 @@ public class ServiceConfiguration {
 
 	}
 	
-	public static String getExplainAllJSON() throws JsonGenerationException, JsonMappingException, IOException {
+	public static List<String> cleanUpDuplicateFormats(List<ViewerServiceInfo> vsi, List<String> configuredFormats){
+		
+		List<String> allSupportedFormats = new ArrayList<String>();
+		for (ViewerServiceInfo vsi1:vsi){
+			allSupportedFormats.addAll(vsi1.getSupportedFormats());
+		}
+		
+		List<String> supportedServiceFormatsCleanedUp = new ArrayList<String>(); 
+		supportedServiceFormatsCleanedUp = new ArrayList<String>(); 
+
+		for (String formatS:configuredFormats) {
+				if (!allSupportedFormats.contains(formatS)) {
+					allSupportedFormats.add(formatS);
+					supportedServiceFormatsCleanedUp.add(formatS);
+				}
+			}
+	
+		return supportedServiceFormatsCleanedUp;
+
+	}
+	
+	
+	public static List <String> getAllSupportedFormatsList (){
+		
+		List<ViewerServiceInfo> vsi = getViewerServicesCollection()!=null?
+							getViewerServicesCollection():
+							new ArrayList<ViewerServiceInfo> ();
+		
+		List<String> supportedFormats = new ArrayList<String>(); 
+		for (ViewerServiceInfo vsiService:vsi) {
+			for (String formatS:vsiService.getSupportedFormats()) {
+				if (!supportedFormats.contains(formatS)) {
+					supportedFormats.add(formatS);
+				}
+			}
+			vsiService.setSupportedFormats(supportedFormats);
+		}
+		
+		Collections.sort(supportedFormats);
+		return supportedFormats;
+	}
+	
+	public static String getExplainFormatsJSON() throws JsonGenerationException, JsonMappingException, IOException {
 		ObjectMapper mapper = new ObjectMapper();
-		List<ViewerServiceInfo> vsi = getViewerServicesCollection();
-		//File jsonOutput = new Fil
-		mapper.writeValue(new File("file2"), vsi);
-		return (mapper.writerWithDefaultPrettyPrinter().writeValueAsString(vsi));
+		return (mapper.writerWithDefaultPrettyPrinter().writeValueAsString(getAllSupportedFormatsList()));
 		
 	}
 	
-	public static void main(String [] args)
-	{
-		ServiceConfiguration sc = new ServiceConfiguration();
-		System.out.println(sc.getServiceUrl());
+	public static String getExplainAllJSON() throws JsonGenerationException, JsonMappingException, IOException {
+		ObjectMapper mapper = new ObjectMapper();
+		List<ViewerServiceInfo> vsi = getViewerServicesCollection();
+		return (mapper.writerWithDefaultPrettyPrinter().writeValueAsString(vsi));
 		
-		try {
-			System.out.println(getExplainAllJSON());
-		} catch (JsonGenerationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (JsonMappingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
-
 
 }
 

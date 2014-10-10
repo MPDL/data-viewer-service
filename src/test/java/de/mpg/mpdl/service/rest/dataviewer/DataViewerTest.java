@@ -1,7 +1,20 @@
 package de.mpg.mpdl.service.rest.dataviewer;
 
-import de.mpg.mpdl.service.rest.dataviewer.ServiceConfiguration.Pathes;
-import de.mpg.mpdl.service.rest.dataviewer.process.RestProcessUtils;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.isEmptyOrNullString;
+import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Application;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
@@ -14,24 +27,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.Form;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.URI;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.isEmptyOrNullString;
-import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import de.mpg.mpdl.service.rest.dataviewer.ServiceConfiguration.Pathes;
+import de.mpg.mpdl.service.rest.dataviewer.process.RestProcessUtils;
 
 public class DataViewerTest extends JerseyTest{
 
@@ -84,46 +81,6 @@ public class DataViewerTest extends JerseyTest{
         assertNotNull("Cannot create multipart body for DVW from test resources: " + DVW_TEST_FILE_NAME, filePart);
 
     }
-
-    /**
-     * URL tests
-     * */
-  /*  @Test
-    public void testUrlViewIn3D() throws IOException {
-        testUrl(
-                target(Pathes.PATH_VIEW)
-                .queryParam("portable", "false"),
-                MediaType.TEXT_HTML_TYPE
-        );
-    }
-
-*/
-
-  /*  @Test
-    public void testUrlViewIn3DPortable() throws IOException {
-        testUrl(
-                target(Pathes.PATH_VIEW)
-                .queryParam("portable", "true"),
-                MediaType.TEXT_HTML_TYPE
-        );
-    }
-
-*/
-  /*  @Test
-    public void testExplain() throws IOException {
-    	Response response = target("")
-                .request(MediaType.TEXT_HTML)
-                .get();
-
-        assertEquals(200, response.getStatus());
-        String str = response.readEntity(String.class); 
-        assertThat(str, not(isEmptyOrNullString()));
-        
-        System.out.println("explain\n" + str);
-        
-        
-               
-    }*/
     
     /**
      * File upload tests
@@ -139,13 +96,20 @@ public class DataViewerTest extends JerseyTest{
     }
 
     @Test
-    public void testUrlView() throws IOException {
+    public void testExplain() throws IOException {
     	System.out.println("TESTING URL");
     	testUrl(
-                target(Pathes.PATH_VIEW)
-                .queryParam("mimetype", "swc")
-                .queryParam("url", "http://neuromorpho.org/neuroMorpho/dableFiles/de%20koninck/CNG%20version/frontal-rat-cell-118.CNG.swc"),
-                MediaType.TEXT_HTML_TYPE
+                target(Pathes.PATH_EXPLAIN),
+                MediaType.APPLICATION_JSON_TYPE
+        );
+    }
+
+    @Test
+    public void testExplainFormats() throws IOException {
+    	System.out.println("TESTING FORMATS EXPLAIN");
+    	testUrl(
+                target(Pathes.PATH_EXPLAIN_FORMATS),
+                MediaType.APPLICATION_JSON_TYPE
         );
     }
 
@@ -156,7 +120,10 @@ public class DataViewerTest extends JerseyTest{
                 .request(MediaType.APPLICATION_FORM_URLENCODED_TYPE)
                 .accept(responseMediaType)
                 .get();
-
+        
+        
+        //System.out.println(response.readEntity(String.class));
+        
         assertEquals(200, response.getStatus());
         assertThat(response.readEntity(String.class), not(isEmptyOrNullString()));
 

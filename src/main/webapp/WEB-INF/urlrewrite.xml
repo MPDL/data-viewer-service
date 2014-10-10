@@ -11,10 +11,10 @@
 <urlrewrite>
 
     <rule>
-        <from>/api/explain</from>
+        <from>^$</from>
         <to>/explain.html</to>
     </rule>
-   
+
     <!--
 
     INSTALLATION

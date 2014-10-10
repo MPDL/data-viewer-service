@@ -1,6 +1,8 @@
 package de.mpg.mpdl.service.vo.dataviewer;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class ViewerServiceInfo {
@@ -25,9 +27,7 @@ public class ViewerServiceInfo {
 		return serviceHomeUrl;
 	}
 	
-	public String getSupportedFormatsString() {
-		return supportedFormatsString;
-	}
+	
 	public void setServiceHomeUrl(String serviceHomeUrl) {
 		this.serviceHomeUrl = serviceHomeUrl;
 	}
@@ -40,17 +40,30 @@ public class ViewerServiceInfo {
 	public List<String> getSupportedFormats() {
 		return supportedFormats;
 	}
+
 	public void setSupportedFormats(List<String> supportedFormats) {
 		this.supportedFormats = supportedFormats;
 	}
 
 	public void setSupportedFormats(String allSupportedFormats) {
-		this.supportedFormats = Arrays.asList(allSupportedFormats.split(","));
+		List<String> formats = new ArrayList<String>();
+		for ( String str: Arrays.asList(allSupportedFormats.split(","))){
+			//Split does not remove all whitespaces (before first item)
+			String removedWhitespaces= str.replaceAll("\\p{Z}","");
+			if (!formats.contains(removedWhitespaces)) {
+				formats.add(removedWhitespaces);
+			}
+		}
+		
+		Collections.sort(formats);
+		this.supportedFormats = formats;
 	}
+	
 	
 	public String getServiceName() {
 		return serviceName;
 	}
+
 	public void setServiceName(String serviceName) {
 		this.serviceName = serviceName;
 	}

@@ -12,7 +12,8 @@ public class MyApplication extends ResourceConfig {
 
     public MyApplication() {
         packages("de.mpg.mpdl.service.rest.dataviewer");
-        register(LoggingFilter.class);
+        //Uncomment loggingFilter registration below to start logging your service requests
+        //register(LoggingFilter.class);
         register(MultiPartFeature.class);
         property(JsonGenerator.PRETTY_PRINTING, true);
     }
