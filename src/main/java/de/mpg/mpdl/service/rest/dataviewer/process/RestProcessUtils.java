@@ -118,7 +118,7 @@ public class RestProcessUtils {
 	}
 
 
-	public static Response generateViewFromUrl(String url, String mimetype)
+	public static Response generateViewFromUrl(String url, String mimetype, String load)
 			throws IOException {
 
 		//Validate the url as parameter
@@ -152,7 +152,7 @@ public class RestProcessUtils {
 
 		Response response = target
 				.queryParam("url", UriBuilder.fromPath(url))
-				.queryParam("portable", String.valueOf(true))
+				.queryParam("load", load)
 				.request(MediaType.APPLICATION_FORM_URLENCODED_TYPE, MediaType.TEXT_HTML_TYPE)
 				.get();
 
