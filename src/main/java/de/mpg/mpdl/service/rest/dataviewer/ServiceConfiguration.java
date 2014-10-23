@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
+import de.mpg.mpdl.service.rest.dataviewer.process.RestProcessUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
@@ -118,10 +119,8 @@ public class ServiceConfiguration {
 
                 //if no app server is defined, take props from WEB-INF
                 //(this is the test case)
-                //properties.load(RestProcessUtils.getResourceAsInputStream(PROPERTIES_FILENAME));
-            	//
-            	loc = "C:/Users/somename/hub-dev/tomcat-7.0.54/conf";
-                //return;
+                properties.load(new RestProcessUtils().getResourceAsInputStream(PROPERTIES_FILENAME));
+                return;
             }
 
             properties.load(new FileInputStream(new File(

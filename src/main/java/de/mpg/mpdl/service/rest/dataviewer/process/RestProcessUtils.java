@@ -55,7 +55,9 @@ public class RestProcessUtils {
 
 		// get the multipart request and process parameters and files of the
 		// multipart request
+
 		List<FileItem> fileItems = uploadFiles(request);
+
 
 		// get the file which was uploaded
 		FileItem uploadedFileItem = getFirstFileItem(fileItems);
@@ -104,6 +106,7 @@ public class RestProcessUtils {
 		// URI uriUploadedFile =
 		// RestProcessUtils.getResourceAsURL(uploadedFile.getName()).toURI();
 		FileDataBodyPart filePart = new FileDataBodyPart("file1", uploadedFile);
+
 		FormDataMultiPart dataViewerServiceForm = new FormDataMultiPart();
 		dataViewerServiceForm.bodyPart(filePart);
 		dataViewerServiceForm.field(PORTABLE_PARAMETER, String.valueOf(true));
