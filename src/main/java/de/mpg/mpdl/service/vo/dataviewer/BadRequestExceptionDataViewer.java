@@ -27,6 +27,11 @@ public class BadRequestExceptionDataViewer extends WebApplicationException {
 	    	throw new BadRequestExceptionDataViewer ("You did not upload a file, please upload a file and specify correct mimetype as parameter!", "Data Viewer Service");
 	    }
 	 
+	    public static void BadRequestExceptionMultiPart() 
+	    {
+	    	throw new BadRequestExceptionDataViewer ("The incoming request should be Multipart request - uploaded file and specified mimetype! Please change your request", "Data Viewer Service");
+	    }
+
 	    public static void BadRequestExceptionMime() 
 	    {
 	        throw new BadRequestExceptionDataViewer (" \"mimetype\" parameter is mandatory, please provide valid mimetype parameter and upload a file or specify file url as parameter!", "Data Viewer Service");
