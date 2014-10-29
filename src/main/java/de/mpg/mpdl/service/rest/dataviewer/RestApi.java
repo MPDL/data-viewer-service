@@ -43,25 +43,25 @@ public class RestApi {
 	
 
 	
-	@GET
-	@Path(Pathes.PATH_VIEW)
-	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-	@Produces(MediaType.TEXT_HTML)
-	public Response getViewFromUrl(@QueryParam("url") String url, @QueryParam("mimetype") String mimetype, @QueryParam("load") String load)
-			throws IOException, URISyntaxException {
-        return RestProcessUtils.generateViewFromUrl(url, mimetype, load);
-
-	}
-	
 //	@GET
 //	@Path(Pathes.PATH_VIEW)
 //	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 //	@Produces(MediaType.TEXT_HTML)
-//	public Response getViewFromUrl(@Context HttpServletRequest request)
+//	public Response getViewFromUrl(@QueryParam("url") String url, @QueryParam("mimetype") String mimetype)
 //			throws IOException, URISyntaxException {
-//        return RestProcessUtils.generateViewFromUrl(request);
-//
+//        return RestProcessUtils.generateViewFromUrl(url, mimetype);
+
 //	}
+	
+	@GET
+	@Path(Pathes.PATH_VIEW)
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	@Produces(MediaType.TEXT_HTML)
+	public Response getViewFromUrl(@Context HttpServletRequest request)
+			throws IOException, URISyntaxException {
+        return RestProcessUtils.generateViewFromUrl(request);
+
+	}
 	
 	@GET
 	@Path(Pathes.PATH_EXPLAIN)

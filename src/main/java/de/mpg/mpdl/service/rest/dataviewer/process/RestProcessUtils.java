@@ -72,23 +72,28 @@ public class RestProcessUtils {
 		ViewerServiceInfo selectedService = getViewerServiceforMimeType(mimeTypeParam);
 		
 		URI redirectLocation = new URI(selectedService.getServiceViewUrl());
-		Response response = Response.temporaryRedirect(redirectLocation).build();
+		Response response = Response.
+				temporaryRedirect(redirectLocation).build();
 
 		return response;
 	}
 
 
-	public static Response generateViewFromUrl(String url, String mimetype, String load)
+	public static Response generateViewFromUrl(HttpServletRequest request)
 			throws IOException, URISyntaxException {
 
 		//Validate the url as parameter
+		String url = request.getParameter(URL_PARAMETER);
+		String mimetype = request.getParameter(MIMETYPE_PARAMETER);
+		
 		if (url==null || url.isEmpty() ) {
 			LOGGER.info("BadRequestExceptionUrl: Url missing in incoming request!");
 			 BadRequestExceptionDataViewer.BadRequestExceptionUrl();
 		}
 
 		try {
-		     new URI(UriBuilder.fromPath(url).toString()).toString();
+		     URI myURI = new URI(UriBuilder.fromPath(url).toString());
+		     
 		} catch(URISyntaxException e) {
 			LOGGER.info("BadRequestExceptionUrl: Invalid URL Syntax!");
 		    BadRequestExceptionDataViewer.BadRequestExceptionUrl();
@@ -99,16 +104,15 @@ public class RestProcessUtils {
 		    BadRequestExceptionDataViewer.BadRequestExceptionMime();
 		}
 		
-		ViewerServiceInfo selectedService = getViewerServiceforMimeType(mimetype);
-		URI redirectLocation = new URI ( UriBuilder.fromPath(selectedService.getServiceViewUrl()).replaceQueryParam(MIMETYPE_PARAMETER,mimetype).replaceQueryParam(URL_PARAMETER, url).toString());
-		Response response = Response.
-				temporaryRedirect(redirectLocation).build();
+		ViewerServiceInfo selectedService = getViewerServiceforMimeType(request.getParameter(MIMETYPE_PARAMETER));
+		String newUrl = selectedService.getServiceViewUrl()+"?"+request.getQueryString();
+		URI redirectLocation = new URI(newUrl);
+		Response response = Response.temporaryRedirect(redirectLocation).build();
+		
 		return response;
 
 	}
 	
-	
-
 	public static ViewerServiceInfo getViewerServiceforMimeType(String mimeType) {
 		
 		List<ViewerServiceInfo> viewerServices = ServiceConfiguration

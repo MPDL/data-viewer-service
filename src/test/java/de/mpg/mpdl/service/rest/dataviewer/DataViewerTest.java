@@ -102,6 +102,7 @@ public class DataViewerTest extends JerseyTest{
     	testUrl(
                 target(Pathes.PATH_VIEW)
                 .queryParam("mimetype", "swc")
+                .queryParam("somethingelse", "some values")
                 .queryParam("url", "http://neuromorpho.org/neuroMorpho/dableFiles/de%20koninck/CNG%20version/frontal-rat-cell-118.CNG.swc"),
                 MediaType.TEXT_HTML_TYPE
         );
