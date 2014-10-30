@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 
 import javax.inject.Singleton;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -19,6 +20,7 @@ import javax.ws.rs.core.Response.Status;
 import org.apache.commons.fileupload.FileUploadException;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
+import org.glassfish.jersey.media.multipart.MultiPart;
 
 import de.mpg.mpdl.service.rest.dataviewer.ServiceConfiguration.Pathes;
 import de.mpg.mpdl.service.rest.dataviewer.process.RestProcessUtils;
@@ -34,18 +36,30 @@ public class RestApi {
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.TEXT_HTML)
 	public Response getViewFromFiles(@Context HttpServletRequest request
-	) throws IOException, FileUploadException, URISyntaxException {
+	) throws IOException, FileUploadException, URISyntaxException, ServletException {
         return RestProcessUtils.generateViewFromFiles(request);
 	}
 
+	
+
+	
+//	@GET
+//	@Path(Pathes.PATH_VIEW)
+//	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+//	@Produces(MediaType.TEXT_HTML)
+//	public Response getViewFromUrl(@QueryParam("url") String url, @QueryParam("mimetype") String mimetype)
+//			throws IOException, URISyntaxException {
+//        return RestProcessUtils.generateViewFromUrl(url, mimetype);
+
+//	}
 	
 	@GET
 	@Path(Pathes.PATH_VIEW)
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Produces(MediaType.TEXT_HTML)
-	public Response getViewFromUrl(@QueryParam("url") String url, @QueryParam("mimetype") String mimetype, @QueryParam("load") String load)
-			throws IOException {
-        return RestProcessUtils.generateViewFromUrl(url, mimetype, load);
+	public Response getViewFromUrl(@Context HttpServletRequest request)
+			throws IOException, URISyntaxException {
+        return RestProcessUtils.generateViewFromUrl(request);
 
 	}
 	

@@ -5,14 +5,21 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.AbstractMap;
+import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.Part;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -23,9 +30,13 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
 
 import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileItemIterator;
+import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.fileupload.util.Streams;
+import org.apache.commons.io.IOUtils;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
@@ -45,93 +56,44 @@ public class RestProcessUtils {
 	private static final Logger LOGGER = LoggerFactory
 			.getLogger(RestProcessUtils.class);
 
-	private static final String JAVAX_SERVLET_CONTEXT_TEMPDIR = "javax.servlet.context.tempdir";
 	private static final ServiceConfiguration config = new ServiceConfiguration();
 	public static final String MIMETYPE_PARAMETER = "mimetype";
-	public static final String PORTABLE_PARAMETER = "portable";
+	public static final String URL_PARAMETER = "url";
 
 	public static Response generateViewFromFiles(HttpServletRequest request)
-			throws IOException, FileUploadException, URISyntaxException {
-
-		// get the multipart request and process parameters and files of the
-		// multipart request
-
-		List<FileItem> fileItems = uploadFiles(request);
-
-
-		// get the file which was uploaded
-		FileItem uploadedFileItem = getFirstFileItem(fileItems);
+			throws IOException, FileUploadException, URISyntaxException, ServletException {
 		
-		//Check parameters and throw exception 
-		if (uploadedFileItem == null || uploadedFileItem.getSize() == 0) {
-			LOGGER.info("BadRequestExceptionFile: File missing in incoming request!");
-			BadRequestExceptionDataViewer.BadRequestExceptionFile();
-		}
-			
-		File uploadedFile = getInputStreamAsFile(uploadedFileItem
-				.getInputStream());
-		
-		
-
-		// get the mimetype from provided parameters
-		String selectedMimeType = "";
-		//necessary to check the existence of the parameter
-		boolean foundMimeTypeParam = false;
-		
-		for (FileItem fit : fileItems) {
-			if (fit.isFormField()
-					&& fit.getFieldName().equalsIgnoreCase(MIMETYPE_PARAMETER)) {
-				selectedMimeType = fit.getString();
-				foundMimeTypeParam = true;
-				break;
-			}
+		String mimeTypeParam = getMimeParameter(request);
+		if (mimeTypeParam== null || mimeTypeParam.isEmpty()) {
+			LOGGER.info("BadRequestExceptionMime: Mimetype missing in incoming request (POST request)!");
+		    BadRequestExceptionDataViewer.BadRequestExceptionMime();
 		}
 		
-		if (!foundMimeTypeParam) {
-			LOGGER.info("BadRequestExceptionMime: Mimetype missing in incoming request (multipart form)!");
-			BadRequestExceptionDataViewer.BadRequestExceptionMime();
-		}
-
-		// parse fileItems get MimeType and FileItem (uploaded image)
-		ViewerServiceInfo selectedService = getViewerServiceforMimeType(selectedMimeType);
-
-		//
-		// create PostRequest to the viewerservice as portable
-
-		// Create REST Jersey POST request
-		Client client = ClientBuilder.newClient();
-
-		WebTarget target = client.target(selectedService.getServiceViewUrl());
-
-		// URI uriUploadedFile =
-		// RestProcessUtils.getResourceAsURL(uploadedFile.getName()).toURI();
-		FileDataBodyPart filePart = new FileDataBodyPart("file1", uploadedFile);
-
-		FormDataMultiPart dataViewerServiceForm = new FormDataMultiPart();
-		dataViewerServiceForm.bodyPart(filePart);
-		dataViewerServiceForm.field(PORTABLE_PARAMETER, String.valueOf(true));
-
-		Response response = target
-				.register(MultiPartFeature.class)
-				.request(MediaType.MULTIPART_FORM_DATA_TYPE, MediaType.TEXT_HTML_TYPE)
-				.post(Entity.entity(dataViewerServiceForm,
-						dataViewerServiceForm.getMediaType()));
+		ViewerServiceInfo selectedService = getViewerServiceforMimeType(mimeTypeParam);
+		
+		URI redirectLocation = new URI(selectedService.getServiceViewUrl());
+		Response response = Response.
+				temporaryRedirect(redirectLocation).build();
 
 		return response;
 	}
 
 
-	public static Response generateViewFromUrl(String url, String mimetype, String load)
-			throws IOException {
+	public static Response generateViewFromUrl(HttpServletRequest request)
+			throws IOException, URISyntaxException {
 
 		//Validate the url as parameter
+		String url = request.getParameter(URL_PARAMETER);
+		String mimetype = request.getParameter(MIMETYPE_PARAMETER);
+		
 		if (url==null || url.isEmpty() ) {
 			LOGGER.info("BadRequestExceptionUrl: Url missing in incoming request!");
 			 BadRequestExceptionDataViewer.BadRequestExceptionUrl();
 		}
 
 		try {
-		    String someStuff = new URI(url).toString();
+		     URI myURI = new URI(UriBuilder.fromPath(url).toString());
+		     
 		} catch(URISyntaxException e) {
 			LOGGER.info("BadRequestExceptionUrl: Invalid URL Syntax!");
 		    BadRequestExceptionDataViewer.BadRequestExceptionUrl();
@@ -142,33 +104,17 @@ public class RestProcessUtils {
 		    BadRequestExceptionDataViewer.BadRequestExceptionMime();
 		}
 		
+		ViewerServiceInfo selectedService = getViewerServiceforMimeType(request.getParameter(MIMETYPE_PARAMETER));
+		String newUrl = selectedService.getServiceViewUrl()+"?"+request.getQueryString();
+		URI redirectLocation = new URI(newUrl);
+		Response response = Response.temporaryRedirect(redirectLocation).build();
 		
-		ViewerServiceInfo selectedService = getViewerServiceforMimeType(mimetype);
-//		System.out.println("MimeType = "+mimetype+ " and Service = "+selectedService.getServiceId());
-//		System.out.println("URL= "+url);
-//		System.out.println("URL Encoded= "+UriBuilder.fromPath(url));
-
-		Client client = ClientBuilder.newClient();
-		WebTarget target = client.target(selectedService.getServiceViewUrl());
-		
-//		System.out.println("ServiceURL= "+selectedService.getServiceViewUrl());
-
-		Response response = target
-				.queryParam("url", UriBuilder.fromPath(url))
-				.queryParam("load", load)
-				.request(MediaType.APPLICATION_FORM_URLENCODED_TYPE, MediaType.TEXT_HTML_TYPE)
-				.get();
-
 		return response;
 
 	}
-
+	
 	public static ViewerServiceInfo getViewerServiceforMimeType(String mimeType) {
 		
-/*		if (ServiceConfiguration.getViewerServicesCollection().size()==0) {
-			ServiceConfiguration sc = new ServiceConfiguration();
-		}
-*/		
 		List<ViewerServiceInfo> viewerServices = ServiceConfiguration
 				.getViewerServicesCollection();
 		
@@ -184,30 +130,33 @@ public class RestProcessUtils {
 
 	// Helpers
 
-	public static List<FileItem> uploadFiles(HttpServletRequest request)
-			throws FileUploadException {
-		List<FileItem> items = null;
-		if (ServletFileUpload.isMultipartContent(request)) {
-			ServletContext servletContext = request.getServletContext();
-			File repository = (File) servletContext
-					.getAttribute(JAVAX_SERVLET_CONTEXT_TEMPDIR);
-			DiskFileItemFactory factory = new DiskFileItemFactory();
-			factory.setRepository(repository);
-			ServletFileUpload fileUpload = new ServletFileUpload(factory);
-			items = fileUpload.parseRequest(request);
+	public static String getMimeParameter(HttpServletRequest request)
+			throws IOException, FileUploadException {
+
+		if (!ServletFileUpload.isMultipartContent(request)) {
+			LOGGER.info("BadRequestExceptionFileUpload: is Not Multipart Request (POST request)!");
+		    BadRequestExceptionDataViewer.BadRequestExceptionMultiPart();
 		}
-		return items;
-	}
 
-	public static Response buildHtmlResponse(String str) {
-		return buildHtmlResponse(str, Status.OK);
+		//Use Streaming to parse through rather than downloading and file processing
+		//Initialize the file upload handler
+		ServletFileUpload upload = new ServletFileUpload();
+		FileItemIterator iter = upload.getItemIterator(request);
+		
+		while (iter.hasNext()) {
+			FileItemStream item = iter.next();
+			String name = item.getFieldName();
+			if (name.equals(MIMETYPE_PARAMETER)) {
+				InputStream stream=item.openStream();
+				String mimeValue = Streams.asString(stream);
+				stream.close();
+				return mimeValue;
+			}
+		}
+		
+		return "";
 	}
-
-	public static Response buildHtmlResponse(String str, Status status) {
-		return Response.status(status).entity(str).type(MediaType.TEXT_HTML)
-				.build();
-	}
-
+		
 	public static Response buildJSONResponse(String str, Status status) {
 		return Response.status(status).entity(str)
 				.type(MediaType.APPLICATION_JSON).build();
@@ -273,62 +222,4 @@ public class RestProcessUtils {
 		return string;
 	}
 
-	private static File getInputStreamAsFile(InputStream stream)
-			throws IOException {
-		Closer closer = Closer.create();
-		closer.register(stream);
-		File f = File.createTempFile("dataViewer", ".dataViewer");
-		try {
-			ByteStreams.copy(stream, new FileOutputStream(f));
-		} catch (Throwable e) {
-			closer.rethrow(e);
-		} finally {
-			closer.close();
-		}
-		return f;
-	}
-
-	// get only first processed file!
-	public static FileItem getFirstFileItem(List<FileItem> fileItems)
-			throws IOException {
-
-		if (LOGGER.isDebugEnabled()) {
-			for (FileItem fileItem : fileItems) {
-				if (fileItem.isFormField()) {
-					LOGGER.debug("fileItem.getFieldName():"
-							+ fileItem.getFieldName());
-					LOGGER.debug("value:" + fileItem.getString());
-				}
-			}
-		}
-
-		for (FileItem fileItem : fileItems) {
-			if (!fileItem.isFormField()) {
-				return fileItem;
-			}
-		}
-		return null;
-	}
-
-	private static int getNumberOfBins(List<FileItem> items) {
-		for (FileItem item : items)
-			if (item.isFormField()
-					&& "numberOfBins".equals(item.getFieldName()))
-				return Integer.parseInt(item.getString());
-		return 0;
-	}
-
-	private static boolean getWidthOfBins(List<FileItem> items) {
-		for (FileItem item : items)
-			if (item.isFormField() && "typeOfBins".equals(item.getFieldName()))
-				return item.getString().equals("width");
-		return false;
-	}
-
-	private static String getQuery(List<FileItem> items) {
-		for (FileItem item : items)
-			if (item.isFormField() && "query".equals(item.getFieldName()))
-				return item.getString();
-		return null;
-	}
 }

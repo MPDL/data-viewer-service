@@ -156,18 +156,21 @@ public class ServiceConfiguration {
 							getViewerServicesCollection():
 							new ArrayList<ViewerServiceInfo> ();
 		
-		List<String> supportedFormats = new ArrayList<String>(); 
+		List<String> supportedFormats = null;
+		List<String> allSupportedFormats = new ArrayList<String>();  
 		for (ViewerServiceInfo vsiService:vsi) {
+			supportedFormats = new ArrayList<String>();
 			for (String formatS:vsiService.getSupportedFormats()) {
-				if (!supportedFormats.contains(formatS)) {
+				if (!allSupportedFormats.contains(formatS)) {
 					supportedFormats.add(formatS);
+					allSupportedFormats.add(formatS);
 				}
 			}
 			vsiService.setSupportedFormats(supportedFormats);
 		}
 		
-		Collections.sort(supportedFormats);
-		return supportedFormats;
+		Collections.sort(allSupportedFormats);
+		return allSupportedFormats;
 	}
 	
 	public static String getExplainFormatsJSON() throws JsonGenerationException, JsonMappingException, IOException {
@@ -178,8 +181,7 @@ public class ServiceConfiguration {
 	
 	public static String getExplainAllJSON() throws JsonGenerationException, JsonMappingException, IOException {
 		ObjectMapper mapper = new ObjectMapper();
-		List<ViewerServiceInfo> vsi = getViewerServicesCollection();
-		return (mapper.writerWithDefaultPrettyPrinter().writeValueAsString(vsi));
+		return (mapper.writerWithDefaultPrettyPrinter().writeValueAsString(getViewerServicesCollection()));
 		
 	}
 
