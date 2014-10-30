@@ -1,21 +1,17 @@
 package de.mpg.mpdl.service.rest.dataviewer;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
-
-import de.mpg.mpdl.service.rest.dataviewer.process.RestProcessUtils;
+import de.mpg.mpdl.service.vo.dataviewer.ViewerServiceInfo;
 import org.apache.commons.io.FilenameUtils;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import de.mpg.mpdl.service.vo.dataviewer.ViewerServiceInfo;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.*;
+
+import de.mpg.mpdl.service.rest.dataviewer.process.RestProcessUtils;
 
 public class ServiceConfiguration {
 
