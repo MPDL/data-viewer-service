@@ -170,7 +170,7 @@
 
 	<profiles>
 		<profile>
-			<id>development</id>
+			<id>env-development</id>
 			<build>
 				<plugins>
 					<plugin>
@@ -187,7 +187,7 @@
 										<delete quiet="true" dir="${tomcat.webapps}/${project.warName}" />
 										<copy overwrite="true"
 											file="${project.build.directory}/${project.warName}.war"
-											tofile="${tomcat.webapps}/${project.warName}.war" />
+											todir="${tomcat.webapps}"  />
 									</tasks>
 								</configuration>
 								<goals>

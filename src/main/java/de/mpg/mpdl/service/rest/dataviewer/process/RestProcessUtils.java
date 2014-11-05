@@ -166,8 +166,7 @@ public class RestProcessUtils {
 			ServiceConfiguration sc = new ServiceConfiguration();
 		}
 */		
-		List<ViewerServiceInfo> viewerServices = ServiceConfiguration
-				.getViewerServicesCollection();
+		List<ViewerServiceInfo> viewerServices = ServiceConfiguration.getViewerServicesCollection();
 		
 		for (ViewerServiceInfo viewerService : viewerServices) {
 			if (viewerService.getSupportedFormats().contains(mimeType)) {

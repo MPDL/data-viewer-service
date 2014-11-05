@@ -28,7 +28,7 @@ import de.mpg.mpdl.service.rest.dataviewer.process.RestProcessUtils;
 public class RestApi {
 
 	//private static final Logger LOGGER = LoggerFactory.getLogger(RestApi.class);
-
+ 
 	@POST
 	@Path(Pathes.PATH_VIEW)
 	@Consumes(MediaType.MULTIPART_FORM_DATA)

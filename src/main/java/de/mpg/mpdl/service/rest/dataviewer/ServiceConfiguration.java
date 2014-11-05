@@ -120,7 +120,7 @@ public class ServiceConfiguration {
                 //(this is the test case)
                 //properties.load(RestProcessUtils.getResourceAsInputStream(PROPERTIES_FILENAME));
             	//
-            	loc = "C:/Users/somename/hub-dev/tomcat-7.0.54/conf";
+            	loc = "C:/tomcat/apache-tomcat-7.0.47/conf";
                 //return;
             }
 
