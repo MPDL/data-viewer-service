@@ -1,20 +1,17 @@
 package de.mpg.mpdl.service.rest.dataviewer;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
-
+import de.mpg.mpdl.service.vo.dataviewer.ViewerServiceInfo;
 import org.apache.commons.io.FilenameUtils;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import de.mpg.mpdl.service.vo.dataviewer.ViewerServiceInfo;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.*;
+
+import de.mpg.mpdl.service.rest.dataviewer.process.RestProcessUtils;
 
 public class ServiceConfiguration {
 
@@ -118,10 +115,8 @@ public class ServiceConfiguration {
 
                 //if no app server is defined, take props from WEB-INF
                 //(this is the test case)
-                //properties.load(RestProcessUtils.getResourceAsInputStream(PROPERTIES_FILENAME));
-            	//
-            	loc = "C:/tomcat/apache-tomcat-7.0.47/conf";
-                //return;
+                properties.load(new RestProcessUtils().getResourceAsInputStream(PROPERTIES_FILENAME));
+                return;
             }
 
             properties.load(new FileInputStream(new File(
@@ -161,18 +156,21 @@ public class ServiceConfiguration {
 							getViewerServicesCollection():
 							new ArrayList<ViewerServiceInfo> ();
 		
-		List<String> supportedFormats = new ArrayList<String>(); 
+		List<String> supportedFormats = null;
+		List<String> allSupportedFormats = new ArrayList<String>();  
 		for (ViewerServiceInfo vsiService:vsi) {
+			supportedFormats = new ArrayList<String>();
 			for (String formatS:vsiService.getSupportedFormats()) {
-				if (!supportedFormats.contains(formatS)) {
+				if (!allSupportedFormats.contains(formatS)) {
 					supportedFormats.add(formatS);
+					allSupportedFormats.add(formatS);
 				}
 			}
 			vsiService.setSupportedFormats(supportedFormats);
 		}
 		
-		Collections.sort(supportedFormats);
-		return supportedFormats;
+		Collections.sort(allSupportedFormats);
+		return allSupportedFormats;
 	}
 	
 	public static String getExplainFormatsJSON() throws JsonGenerationException, JsonMappingException, IOException {
@@ -183,8 +181,7 @@ public class ServiceConfiguration {
 	
 	public static String getExplainAllJSON() throws JsonGenerationException, JsonMappingException, IOException {
 		ObjectMapper mapper = new ObjectMapper();
-		List<ViewerServiceInfo> vsi = getViewerServicesCollection();
-		return (mapper.writerWithDefaultPrettyPrinter().writeValueAsString(vsi));
+		return (mapper.writerWithDefaultPrettyPrinter().writeValueAsString(getViewerServicesCollection()));
 		
 	}
 

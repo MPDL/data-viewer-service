@@ -70,12 +70,13 @@ public class DataViewerTest extends JerseyTest{
             filePart = new FileDataBodyPart("file1", new File(uri));
             DVW_MULTIPART = new FormDataMultiPart();
             DVW_MULTIPART.bodyPart(filePart);
+            //DVW_MULTIPART.field(RestProcessUtils.PORTABLE_PARAMETER, "true");
             //DVW_MULTIPART.field(RestProcessUtils.MIMETYPE_PARAMETER, "swc");
         } catch (Exception e) {
             e.printStackTrace();
         }
         
-        System.out.println("FileURL="+DVW_URL);
+        //System.out.println("FileURL="+DVW_URL);
         assertNotNull("Cannot create URL to Data Viewer file from resources: " + DVW_TEST_FILE_NAME, DVW_URL);
         assertNotNull("Cannot read content from test resources: " + DVW_TEST_FILE_NAME, DVW_CONTENT);
         assertNotNull("Cannot create multipart body for DVW from test resources: " + DVW_TEST_FILE_NAME, filePart);
@@ -87,17 +88,30 @@ public class DataViewerTest extends JerseyTest{
      * */
     @Test
     public void testFileView() throws IOException {
-    	 System.out.println("TESTING FILEUPLOAD");
+    	 System.out.println("TESTING FILEUPLOAD ");
     	 testFile(DVW_MULTIPART
                  .field("mimetype", "swc"),
          Pathes.PATH_VIEW,
          MediaType.TEXT_HTML_TYPE
     			 );
     }
+    
+    @Test
+    public void testUrlView() throws IOException {
+    	System.out.println("TESTING URLVIEWER");
+    	testUrl(
+                target(Pathes.PATH_VIEW)
+                .queryParam("mimetype", "swc")
+                .queryParam("somethingelse", "some values")
+                .queryParam("url", "http://neuromorpho.org/neuroMorpho/dableFiles/de%20koninck/CNG%20version/frontal-rat-cell-118.CNG.swc"),
+                MediaType.TEXT_HTML_TYPE
+        );
+    }
+
 
     @Test
     public void testExplain() throws IOException {
-    	System.out.println("TESTING URL");
+    	System.out.println("TESTING SERVICE EXPLAIN URL");
     	testUrl(
                 target(Pathes.PATH_EXPLAIN),
                 MediaType.APPLICATION_JSON_TYPE
@@ -121,9 +135,6 @@ public class DataViewerTest extends JerseyTest{
                 .accept(responseMediaType)
                 .get();
         
-        
-        //System.out.println(response.readEntity(String.class));
-        
         assertEquals(200, response.getStatus());
         assertThat(response.readEntity(String.class), not(isEmptyOrNullString()));
 
@@ -132,8 +143,6 @@ public class DataViewerTest extends JerseyTest{
 
     private void testFile(FormDataMultiPart multipart, String path, MediaType responseMediaType) {
 
-    	System.out.println("Path= "+path);
-    	System.out.println("Target is "+target().getUri());
         Response response = target(path)
                 .register(MultiPartFeature.class)
                 .request(MediaType.MULTIPART_FORM_DATA_TYPE, responseMediaType)
