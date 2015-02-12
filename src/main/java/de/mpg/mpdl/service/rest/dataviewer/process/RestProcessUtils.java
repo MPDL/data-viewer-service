@@ -74,7 +74,6 @@ public class RestProcessUtils {
 		URI myURI = null;
 		try {
 		     myURI = new URI(UriBuilder.fromPath(url).toString());
-		     System.out.println("MyURI = "+myURI);
 		     
 		} catch(URISyntaxException e) {
 			LOGGER.info("BadRequestExceptionUrl: Invalid URL Syntax!");
