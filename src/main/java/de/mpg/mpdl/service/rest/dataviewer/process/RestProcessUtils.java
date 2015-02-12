@@ -1,49 +1,30 @@
 package de.mpg.mpdl.service.rest.dataviewer.process;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.AbstractMap;
-import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
-import java.util.Map;
 
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.Part;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
 
-import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.fileupload.util.Streams;
-import org.apache.commons.io.IOUtils;
-import org.glassfish.jersey.media.multipart.FormDataMultiPart;
-import org.glassfish.jersey.media.multipart.MultiPartFeature;
-import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.io.ByteStreams;
 import com.google.common.io.CharStreams;
 import com.google.common.io.Closer;
 
@@ -90,8 +71,10 @@ public class RestProcessUtils {
 			 BadRequestExceptionDataViewer.BadRequestExceptionUrl();
 		}
 
+		URI myURI = null;
 		try {
-		     URI myURI = new URI(UriBuilder.fromPath(url).toString());
+		     myURI = new URI(UriBuilder.fromPath(url).toString());
+		     System.out.println("MyURI = "+myURI);
 		     
 		} catch(URISyntaxException e) {
 			LOGGER.info("BadRequestExceptionUrl: Invalid URL Syntax!");
@@ -104,7 +87,7 @@ public class RestProcessUtils {
 		}
 		
 		ViewerServiceInfo selectedService = getViewerServiceforMimeType(request.getParameter(MIMETYPE_PARAMETER));
-		String newUrl = selectedService.getServiceViewUrl()+"?"+request.getQueryString();
+		String newUrl = selectedService.getServiceViewUrl()+"?"+URL_PARAMETER+"="+URLEncoder.encode(myURI.toString(), "UTF-8")+"&"+MIMETYPE_PARAMETER+"="+request.getParameter(MIMETYPE_PARAMETER);
 		URI redirectLocation = new URI(newUrl);
 		Response response = Response.temporaryRedirect(redirectLocation).build();
 		
@@ -112,8 +95,6 @@ public class RestProcessUtils {
 
 	}
 	
-	
-
 	public static ViewerServiceInfo getViewerServiceforMimeType(String mimeType) {
 		
 		List<ViewerServiceInfo> viewerServices = ServiceConfiguration

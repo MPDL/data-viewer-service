@@ -98,16 +98,39 @@ public class DataViewerTest extends JerseyTest{
     
     @Test
     public void testUrlView() throws IOException {
-    	System.out.println("TESTING URLVIEWER");
+    	System.out.println("TESTING URLVIEWER for NORMAL URL");
     	testUrl(
                 target(Pathes.PATH_VIEW)
                 .queryParam("mimetype", "swc")
-                .queryParam("somethingelse", "some values")
-                .queryParam("url", "http://neuromorpho.org/neuroMorpho/dableFiles/de%20koninck/CNG%20version/frontal-rat-cell-118.CNG.swc"),
+                .queryParam("portable", "true")
+                .queryParam("url", "http://research.mssm.edu/cnic/downloads/neurons/cnic_macaque_pyramidal.swc"),
                 MediaType.TEXT_HTML_TYPE
         );
     }
 
+    @Test
+    public void testUrlViewWithSpaces() throws IOException {
+    	System.out.println("TESTING URLVIEWER for URL with spaces");
+    	testUrl(
+                target(Pathes.PATH_VIEW)
+                .queryParam("mimetype", "swc")
+                .queryParam("portable", "true")
+                .queryParam("url", "http://neuromorpho.org/neuroMorpho/dableFiles/de koninck/CNG version/frontal-rat-cell-118.CNG.swc"),
+                MediaType.TEXT_HTML_TYPE
+        );
+    }
+
+    @Test
+    public void testUrlViewWithEncodedSpaces() throws IOException {
+    	System.out.println("TESTING URLVIEWER for URL with encoded spaces");
+    	testUrl(
+                target(Pathes.PATH_VIEW)
+                .queryParam("mimetype", "swc")
+                .queryParam("portable", "true")
+                .queryParam("url", "http://neuromorpho.org/neuroMorpho/dableFiles/de%20koninck/CNG%20version/frontal-rat-cell-118.CNG.swc"),
+                MediaType.TEXT_HTML_TYPE
+        );
+    }
 
     @Test
     public void testExplain() throws IOException {
