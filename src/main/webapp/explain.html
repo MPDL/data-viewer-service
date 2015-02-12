@@ -10,24 +10,26 @@
 <form action="/data-viewer/api/view" method="post" enctype="multipart/form-data" onsubmit="return checkFiles(this)&&checkMime(this);">
 
     <p>
-        Select a file : <input type="file" name="file1" size="50" />
+        Select a file to visualize : <input type="file" name="file1" size="50" />
     </p>
-     <input type="text" name="mimetype" size="10"/>
+    <p>
+     	Enter the extension of the file (without ".") : <input type="text" name="mimetype" size="10" title="mimetype"/>
+     </p>
      <input type="submit" value="Get results from the viewer service " />
      <input type="reset" value="Reset">
 </form>
 
 
 
-<h1>or put url to the file you want to visualize here:</h1>
+<h1>or put url to the file to visualize here:</h1>
 
 <form action="/data-viewer/api/view" method="get" onsubmit="return checkUrl(this)&&checkMime(this);">
 
     <p>
-        <input name="url" id="url" type="text" size="240" />
+    	Enter the url of the file to visualize:  <input name="url" id="url" type="text" size="240" />
     </p>
 	<p>
-	    <input name="mimetype" id="mimetype" type="text" size= "40" >
+	    Enter the extension of the file (without ".") : <input name="mimetype" id="mimetype" type="text" size= "40" >
 	</p>
 
     <input type="submit" value="Get results from the viewer service" />

@@ -72,8 +72,7 @@ public class RestProcessUtils {
 		ViewerServiceInfo selectedService = getViewerServiceforMimeType(mimeTypeParam);
 		
 		URI redirectLocation = new URI(selectedService.getServiceViewUrl());
-		Response response = Response.
-				temporaryRedirect(redirectLocation).build();
+		Response response = Response.temporaryRedirect(redirectLocation).build();
 
 		return response;
 	}
@@ -113,6 +112,8 @@ public class RestProcessUtils {
 
 	}
 	
+	
+
 	public static ViewerServiceInfo getViewerServiceforMimeType(String mimeType) {
 		
 		List<ViewerServiceInfo> viewerServices = ServiceConfiguration
